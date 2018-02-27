@@ -10,9 +10,38 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 20180227142517) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "bus_stops", force: :cascade do |t|
+    t.string "atcocode"
+    t.string "mode"
+    t.string "name"
+    t.string "stop_name"
+    t.string "bearing"
+    t.string "smscode"
+    t.string "locality"
+    t.string "indicator"
+    t.float "longitude"
+    t.float "latitude"
+    t.integer "distance"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "locations", force: :cascade do |t|
+    t.float "latitude"
+    t.float "longitude"
+    t.datetime "time"
+    t.float "current_speed"
+    t.integer "note"
+    t.bigint "bus_stop_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bus_stop_id"], name: "index_locations_on_bus_stop_id"
+  end
+
+  add_foreign_key "locations", "bus_stops"
 end
