@@ -1,8 +1,9 @@
 class BusStop < ApplicationRecord
-
   before_save :uppercase_bearing
 
-  validates :atcocode, presence: true
+  has_many :locations
+
+  validates :atcocode, presence: true # MAKE UNIQUE
   validates :mode, inclusion: { in: ["bus"] }
   validates :name, length: { minimum: 3 }
   validates :stop_name, length: { minimum: 3 }
