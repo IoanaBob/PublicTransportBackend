@@ -12,4 +12,15 @@ class Location < ApplicationRecord
       errors.add(:time, "cannot be in the future")
     end
   end
+
+  def is_weekday
+    # returns 0 to 6, Sunday to Saturday
+    day = time.wday
+    # if monday to friday
+    return (1..5).include? day
+  end
+
+  def expected_time
+    (time.to_time - delay.minutes).to_datetime
+  end
 end

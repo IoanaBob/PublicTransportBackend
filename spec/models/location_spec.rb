@@ -58,4 +58,35 @@ RSpec.describe Location, type: :model do
       end
     end
   end
+
+  describe "class function" do
+    describe "is_weekday" do
+      subject { (FactoryBot.build :location, time: time).is_weekday }
+
+      context "when friday" do
+        let(:time) { "2018-02-23 14:25:17" }
+        it { is_expected.to be true}
+      end
+
+      context "when saturday" do
+        let(:time) { "2018-02-24 14:25:17" }
+        it { is_expected.to be false}
+      end
+    end
+
+    describe "expected_time" do
+      let!(:time) { "2018-02-24 14:25:17" }
+      subject { (FactoryBot.build :location, delay: delay, time: time).expected_time }
+
+      describe "when delay positive" do
+        let(:delay) { 3 }
+        it { is_expected.to eq("2018-02-24 14:22:17")}
+      end
+
+      describe "when delay negative" do
+        let(:delay) { -5 }
+        it { is_expected.to eq("2018-02-24 14:30:17")}
+      end
+    end
+  end
 end

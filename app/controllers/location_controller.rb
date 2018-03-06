@@ -19,6 +19,13 @@ class LocationController < ApplicationController
 
       if location.save
         head :ok
+        # add delay, and for what bus line
+        timetable = Timetable.new(atcocode: location.bus_stop.atcocode, datetime: location.time)
+        delay_for_bus = timetable.get_delay_for_bus
+        if delay_for_bus != :none
+          add_params_to_location(location, delay_for_bus[:delay], delay_for_bus[:bus_line])
+        end
+        # else raise error? can it be an error?
       else
         render json: location.errors, status: :bad_request
       end
@@ -26,6 +33,14 @@ class LocationController < ApplicationController
   end
 
   private
+
+    def add_params_to_location(location, delay, bus_line)
+      if location.update_attributes(bus_line: bus_line, delay: delay)
+        return :ok
+      else
+        return :error
+      end
+    end
 
     def location_params
       # It's mandatory to specify the nested attributes that should be whitelisted.
