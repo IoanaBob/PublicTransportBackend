@@ -33,6 +33,11 @@ RSpec.describe Location, type: :request do
   end
 
   describe 'post location' do
+    before(:each) do
+      httpok = instance_double("Net::HTTPOK", :body => { "departures" => { "all" => [] } }.to_json)
+      allow(Net::HTTP).to receive(:start).and_return(httpok)
+    end
+    
     let(:request) { post "/location/#{atcocode}", params: {location: location.attributes} }
     let!(:bus_stop) { FactoryBot.create :bus_stop }
     let(:location) { FactoryBot.build :location }
