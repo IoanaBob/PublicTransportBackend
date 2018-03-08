@@ -27,19 +27,26 @@ RSpec.describe Timetable do
 
       describe  "when schedule has one element" do
         let(:body) { {"departures" => { "all" => [{"date" => "2018-02-27", "aimed_departure_time" => "14:54", "line_name" => "9" }] } }.to_json }
-        it { stub_http; is_expected.to eq({delay: 4, bus_line: "9"})}
+        it { stub_http; is_expected.to eq({delay: 4, bus_line: "9", aimed_departure_time: "2018-02-27 14:54"})}
       end
 
       describe  "when closest departure is before" do
         let(:body) { {"departures" => { "all" => [{"date" => "2018-02-27", "aimed_departure_time" => "14:40", "line_name" => "8" }, {"date" => "2018-02-27", "aimed_departure_time" => "14:54", "line_name" => "9" }] } }.to_json }
-        it { stub_http; is_expected.to eq({delay: 4, bus_line: "9"})}
+        it { stub_http; is_expected.to eq({delay: 4, bus_line: "9", aimed_departure_time: "2018-02-27 14:54"})}
       end
 
       describe  "when closest departure is after" do
         let(:body) { {"departures" => { "all" => [{"date" => "2018-02-27", "aimed_departure_time" => "14:48", "line_name" => "8" }, {"date" => "2018-02-27", "aimed_departure_time" => "14:54", "line_name" => "9" }] } }.to_json }
-        it { stub_http; is_expected.to eq({delay: -2, bus_line: "8"})}
+        it { stub_http; is_expected.to eq({delay: -2, bus_line: "8", aimed_departure_time: "2018-02-27 14:48"})}
+      end
+    end
+
+    describe "find_delay_for_departure" do
+      subject { timetable.find_delay_for_departure({"date" => "2018-02-27", "aimed_departure_time" => "14:48", "line_name" => "8" }) }
+
+      describe "when there's no relevant location information" do
+        it {is_expected.to eq(:none)}
       end
     end
   end
-
 end

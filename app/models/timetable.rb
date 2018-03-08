@@ -27,33 +27,56 @@ class Timetable
     @schedule = parsed_body['departures']['all']
   end
 
-
-
   def get_delay_for_bus
     return :none if @schedule.empty?
 
     delay = Float::INFINITY
     bus_line = ""
+    sch_time = ""
+    dep_time = ""
+
     @schedule.each do |departure|
       sch_time = departure["date"] + " " + departure["aimed_departure_time"]
       if time_difference(sch_time).abs < delay.abs
+        dep_time = sch_time
         delay = time_difference(sch_time)
         # line_name or line??
         bus_line = departure["line_name"]
       end
     end
-    {delay: delay, bus_line: bus_line}
+    {delay: delay, bus_line: bus_line, aimed_departure_time: dep_time}
   end
 
+  def find_delay_for_departure(departure)
+    dep_time = departure["date"] + " " + departure["aimed_departure_time"]
+    is_weekday = is_weekday(dep_time)
+    locations = Location.where(bus_line: departure["line_name"])
+    locations = locations.where_weekday(is_weekday)
+
+    if !locations.where_aimed_time(departure["aimed_departure_time"]).empty?
+      locations = locations.where_aimed_time(departure["aimed_departure_time"])
+    else
+      starting = (departure["aimed_departure_time"].to_time - 1.hour).strftime("%H:%M")
+      ending = (departure["aimed_departure_time"].to_time + 1.hour).strftime("%H:%M")
   
+      locations = locations.where_aimed_in_time_range(starting, ending)
+    end
+
+    locations.empty? ? :none : locations.average_delay
+  end
+
   private
+
+  def is_weekday(datetime)
+    # returns 0 to 6, Sunday to Saturday
+    day = datetime.to_time.wday
+    # if monday to friday
+    return (1..5).include? day
+  end
 
   # time difference in minutes betwen the recorded bus leaving time and the scheduled time
   def time_difference(departure_time)
     actual_time = @datetime.to_time.change(:sec => 0)
     ((departure_time.to_time - actual_time) / 60).to_i
-  end
-
-  def add_delay
   end
 end
