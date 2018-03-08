@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(version: 20180304003500) do
     t.datetime "updated_at", null: false
     t.float "delay"
     t.string "bus_line"
+    t.datetime "aimed_departure_time"
     t.index ["bus_stop_id"], name: "index_locations_on_bus_stop_id"
   end
 
