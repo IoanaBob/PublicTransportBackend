@@ -8,14 +8,14 @@ class Timetable
     @datetime = datetime
     @date = datetime.to_date
     @time = datetime.to_time
-    @schedule = refresh_schedule
+    @schedule = refresh_schedule || []
   end
 
   # TODO: request schedule for each bus line separately
   def refresh_schedule
     date = @date.strftime("%Y-%m-%d")
     # TODO: minus 30 min
-    time = @date.strftime("%H:%M")
+    time = (@time - 10.minutes).strftime("%H:%M")
 
     url = URI.parse("http://transportapi.com/v3/uk/bus/stop/#{@atcocode}/#{date}/#{time}/timetable.json?group=no&app_id=c12137e2&app_key=703b3fc0bc730dacf75e46ce7b9e9402")
     request = Net::HTTP::Get.new(url.to_s)
@@ -26,6 +26,7 @@ class Timetable
 
     parsed_body = JSON.parse(response.body)
     @schedule = parsed_body['departures']['all']
+    @schedule
   end
 
   def get_delay_for_bus
@@ -53,6 +54,8 @@ class Timetable
   end
 
   def add_delays_to_schedule
+    return if @schedule.empty?
+    
     @schedule.each do |departure|
       delay = find_delay_for_departure(departure)
 
@@ -99,12 +102,12 @@ class Timetable
 
   # time difference in minutes betwen the recorded bus leaving time (time attribute) and the scheduled time
   def time_difference(departure_time)
-    actual_time = @datetime.to_time.change(:sec => 0)
-    ((departure_time.to_time - actual_time) / 60).to_i
+    actual_time = @datetime.in_time_zone('UTC').change(:sec => 0)
+    ((actual_time - departure_time.in_time_zone('UTC')) / 60).to_i
   end
 
   def expected_from_aimed_departure(aim_date, aim_time, delay)
-    aimed_time = (aim_date + " " + aim_time).to_time
+    aimed_time = (aim_date + " " + aim_time).in_time_zone('UTC')
     expected_time = aimed_time + delay.minutes
     {date: expected_time.strftime("%Y-%m-%d"), time: expected_time.strftime("%H:%M")}
   end
