@@ -3,7 +3,7 @@ class BusStop < ApplicationRecord
 
   has_many :locations
 
-  validates :atcocode, presence: true # MAKE UNIQUE
+  validates :atcocode, presence: true # TODO: MAKE UNIQUE
   validates :mode, inclusion: { in: ["bus"] }
   validates :name, length: { minimum: 3 }
   validates :stop_name, length: { minimum: 3 }

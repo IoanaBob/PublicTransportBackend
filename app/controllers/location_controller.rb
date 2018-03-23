@@ -11,7 +11,6 @@ class LocationController < ApplicationController
 
   def create
     bus_stops = BusStop.where(atcocode: params[:atcocode])
-    
     if bus_stops.empty?
       render json: { errors: [atcocode: 'bus stop could not be found'] }, status: :not_found
     else
@@ -43,9 +42,6 @@ class LocationController < ApplicationController
     end
 
     def location_params
-      # It's mandatory to specify the nested attributes that should be whitelisted.
-      # If you use `permit` with just the key that points to the nested attributes hash,
-      # it will return an empty hash.
       params
         .require(:location)
         .permit(:latitude, :longitude, :time, :current_speed, :note)
