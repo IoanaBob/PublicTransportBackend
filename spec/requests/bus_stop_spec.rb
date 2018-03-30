@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe BusStopController, type: :request do
-  subject { response.body.blank? ? nil : JSON.parse(body) }
+  subject { response.body.blank? ? nil : JSON.parse(response.body) }
 
   describe 'get list of bus stops' do
     let(:request) { get '/bus_stops' }

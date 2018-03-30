@@ -1,5 +1,5 @@
 RSpec.describe Location, type: :request do
-  subject { response.body.blank? ? nil : JSON.parse(body) }
+  subject { response.body.blank? ? nil : JSON.parse(response.body) }
 
   describe 'get list of locations' do
     let(:request) { get '/locations' }
