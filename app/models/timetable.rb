@@ -3,21 +3,25 @@ require 'time'
 class Timetable
   attr_reader :schedule
 
-  def initialize(atcocode:, datetime:)
+  def initialize(atcocode:, datetime:, bus_line: nil)
     @atcocode = atcocode
     @datetime = datetime
     @date = datetime.to_date
     @time = datetime.to_time
-    @schedule = refresh_schedule || []
+    @schedule = refresh_schedule(bus_line) || []    
   end
 
   # TODO: request schedule for each bus line separately
-  def refresh_schedule
+  def refresh_schedule(bus_line = nil)
     date = @date.strftime("%Y-%m-%d")
     # TODO: minus 30 min
     time = (@time - 10.minutes).strftime("%H:%M")
-
-    url = URI.parse("http://transportapi.com/v3/uk/bus/stop/#{@atcocode}/#{date}/#{time}/timetable.json?group=no&app_id=c12137e2&app_key=703b3fc0bc730dacf75e46ce7b9e9402")
+    if bus_line.nil?
+      url = URI.parse("http://transportapi.com/v3/uk/bus/stop/#{@atcocode}/#{date}/#{time}/timetable.json?group=no&app_id=c12137e2&app_key=703b3fc0bc730dacf75e46ce7b9e9402")
+    else
+      url = URI.parse("http://transportapi.com/v3/uk/bus/stop/#{@atcocode}/#{date}/#{time}/timetable.json?app_id=c12137e2&app_key=703b3fc0bc730dacf75e46ce7b9e9402")
+    end
+    
     request = Net::HTTP::Get.new(url.to_s)
 
     response = Net::HTTP.start(url.host, url.port) do |http|
@@ -25,7 +29,11 @@ class Timetable
     end
 
     parsed_body = JSON.parse(response.body)
-    @schedule = parsed_body['departures']['all']
+    if bus_line.nil?
+      @schedule = parsed_body['departures']['all']
+    else
+      @schedule = parsed_body['departures'][bus_line]
+    end
     @schedule
   end
 
@@ -59,7 +67,7 @@ class Timetable
     @schedule.each do |departure|
       delay = find_delay_for_departure(departure)
 
-      unless delay.blank?
+      unless delay.nil?
         departure["delay"] = delay
         expected_dep = expected_from_aimed_departure(departure["date"], departure["aimed_departure_time"], delay)
         departure["expected_departure_time"] = expected_dep[:time]
@@ -100,7 +108,7 @@ class Timetable
     (1..5).include? day
   end
 
-  # time difference in minutes betwen the recorded bus leaving time (time attribute) and the scheduled time
+  # time difference in minutes between the recorded bus leaving time (time attribute) and the scheduled time
   def time_difference(departure_time)
     actual_time = @datetime.in_time_zone('UTC').change(:sec => 0)
     ((actual_time - departure_time.in_time_zone('UTC')) / 60).to_i
