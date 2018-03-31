@@ -1,4 +1,9 @@
 class TimetableController < ApplicationController
+  
+  def hello
+    render json: {hello: "Welcome to crowdsourced timetable API!"}, status: :ok
+  end
+
   def all
     if BusStop.where(atcocode: params[:atcocode]).empty?
       render json: { errors: [atcocode: 'bus stop could not be found'] }, status: :not_found
