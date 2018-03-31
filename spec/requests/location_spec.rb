@@ -38,18 +38,18 @@ RSpec.describe Location, type: :request do
       allow(Net::HTTP).to receive(:start).and_return(httpok)
     end
     
-    let(:request) { post "/location/#{atcocode}", params: {location: location.attributes} }
+    let(:request) { post "/location/#{id}", params: {location: location.attributes} }
     let!(:bus_stop) { FactoryBot.create :bus_stop }
     let(:location) { FactoryBot.build :location }
 
-    context "when the atcocode does not exist" do
+    context "when the bus stop does not exist" do
       before { request }
-      let(:atcocode) { "AWD32412AD" }
+      let(:id) { "100" }
       it { expect(response).to have_http_status(:not_found) }
     end
 
-    context "when the atcocode exists" do
-      let(:atcocode) { bus_stop.atcocode }
+    context "when the bus stop exists" do
+      let(:id) { bus_stop.id }
 
       it 'should return status :ok' do
         request

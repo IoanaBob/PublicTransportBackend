@@ -13,7 +13,7 @@ class BusStopController < ApplicationController
     bus_stop = BusStop.new(bus_stop_params)
 
     if bus_stop.save
-      head :ok
+      render json: bus_stop, status: :ok
     else
       render json: bus_stop.errors, status: :bad_request
     end

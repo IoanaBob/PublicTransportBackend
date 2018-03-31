@@ -10,7 +10,7 @@ class LocationController < ApplicationController
   end
 
   def create
-    bus_stops = BusStop.where(atcocode: params[:atcocode])
+    bus_stops = BusStop.where(id: params[:bus_stop_id])
     if bus_stops.empty?
       render json: { errors: [atcocode: 'bus stop could not be found'] }, status: :not_found
     else

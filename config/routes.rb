@@ -5,7 +5,7 @@ Rails.application.routes.draw do
 
   get "/locations", to: "location#index"
   get "/location/:id", to: "location#show"
-  post "/location/:atcocode", to: "location#create"
+  post "/location/:bus_stop_id", to: "location#create"
 
   get "/bus_stops", to: "bus_stop#index"
   get "/bus_stop/:id", to: "bus_stop#show"
