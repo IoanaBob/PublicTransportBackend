@@ -17,14 +17,13 @@ class LocationController < ApplicationController
       location = bus_stops.first.locations.new(location_params)
 
       if location.save
-        head :ok
         # add delay, and for what bus line
         timetable = Timetable.new(atcocode: location.bus_stop.atcocode, datetime: location.time)
         delay_for_bus = timetable.get_delay_for_bus
         unless delay_for_bus.nil?
           add_params_to_location(location, delay_for_bus[:delay], delay_for_bus[:bus_line], delay_for_bus[:aimed_departure_time])
         end
-        # else raise error? can it be an error?
+        render json: {id: location.id, path: show_location_path(location.id)}
       else
         render json: location.errors, status: :bad_request
       end

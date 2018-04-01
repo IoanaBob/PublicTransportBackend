@@ -13,7 +13,7 @@ class BusStopController < ApplicationController
     bus_stop = BusStop.new(bus_stop_params)
 
     if bus_stop.save
-      render json: bus_stop, status: :ok
+      render json: {id: bus_stop.id, path: show_bus_stop_path(bus_stop.id)}, status: :ok
     else
       render json: bus_stop.errors, status: :bad_request
     end
