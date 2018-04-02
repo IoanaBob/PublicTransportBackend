@@ -1,4 +1,5 @@
 require 'time'
+require 'net/http'
 
 class Timetable
   attr_reader :schedule
