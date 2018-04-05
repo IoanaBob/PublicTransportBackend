@@ -76,6 +76,11 @@ RSpec.describe Timetable do
         it { is_expected.to be_blank }
       end
 
+      context "when delay not found" do
+        let(:body) { { "departures" => { "all" => [{"mode" => "bus", "line" => "i'm fake", "line_name" => "FAKE", "direction" => "who cares", "operator" => "O1", "operator_name" => nil, "date" => "2018-02-27", "aimed_departure_time" => "14:25", "expected_departure_date" => nil, "expected_departure_time" => nil, "dir" => "outbound" }] } }.to_json }
+        it { is_expected.to include a_hash_including("expected_departure_time"=>"unknown", "expected_departure_date"=>"unknown") }
+      end
+
       context "when one item in schedule" do
         let(:body) { { "departures" => { "all" => [{"mode" => "bus", "line" => "9--6", "line_name" => "9", "direction" => "who cares", "operator" => "O1", "operator_name" => nil, "date" => "2018-02-27", "aimed_departure_time" => "14:25", "expected_departure_date" => nil, "expected_departure_time" => nil, "dir" => "outbound" }] } }.to_json }
         it { is_expected.to include a_hash_including("expected_departure_time"=>"14:30", "expected_departure_date"=>"2018-02-27") }

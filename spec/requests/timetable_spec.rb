@@ -29,11 +29,22 @@ RSpec.describe Timetable, type: :request do
       it { expect(response).to have_http_status(:not_found) }
     end
 
-    context 'when datetime not valid' do
-      before { request }
+    context 'when date not valid' do
       let(:date) { "blabla" }
+      let!(:bus_stop) { FactoryBot.create :bus_stop, atcocode: "5710AWA10617" }
+
+      before { request }
+
+      it { expect(response).to have_http_status(:bad_request) }
+    end
+
+    context 'when time not valid' do
       let(:time) { "blabla" }
-      # TODO
+      let!(:bus_stop) { FactoryBot.create :bus_stop, atcocode: "5710AWA10617" }
+
+      before { request }
+
+      it { expect(response).to have_http_status(:bad_request) }
     end
 
     context 'when not empty' do
@@ -69,11 +80,22 @@ RSpec.describe Timetable, type: :request do
       it { expect(response).to have_http_status(:not_found) }
     end
 
-    context 'when datetime not valid' do
-      before { request }
+    context 'when date not valid' do
+      let!(:bus_stop) { FactoryBot.create :bus_stop, atcocode: "5710AWA10617" }
       let(:date) { "blabla" }
+
+      before { request }
+      
+      it { expect(response).to have_http_status(:bad_request) }
+    end
+
+    context 'when time not valid' do
+      let!(:bus_stop) { FactoryBot.create :bus_stop, atcocode: "5710AWA10617" }
       let(:time) { "blabla" }
-      # TODO
+      
+      before { request }
+
+      it { expect(response).to have_http_status(:bad_request) }
     end
 
     context 'when not empty' do
@@ -85,5 +107,4 @@ RSpec.describe Timetable, type: :request do
       it { is_expected.to include a_hash_including("delay" => "5.0") }
     end
   end
-
 end

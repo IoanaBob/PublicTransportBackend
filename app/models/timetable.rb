@@ -73,6 +73,10 @@ class Timetable
         expected_dep = expected_from_aimed_departure(departure["date"], departure["aimed_departure_time"], delay)
         departure["expected_departure_time"] = expected_dep[:time]
         departure["expected_departure_date"] = expected_dep[:date]
+      else
+        departure["delay"] = 0.0
+        departure["expected_departure_time"] = "unknown"
+        departure["expected_departure_date"] = "unknown"
       end
     end
     @schedule
