@@ -53,7 +53,8 @@ RSpec.describe Timetable, type: :request do
 
       before { request }
 
-      it { is_expected.to include a_hash_including("delay" => "5.0") }
+      it { is_expected.to include("all") }
+      it { expect(subject["all"]).to include a_hash_including("delay" => 5) }
     end
   end
 
@@ -104,7 +105,9 @@ RSpec.describe Timetable, type: :request do
       let!(:bus_stop) { FactoryBot.create :bus_stop, atcocode: "5710AWA10617" }
       
       before { request }
-      it { is_expected.to include a_hash_including("delay" => "5.0") }
+
+      it { is_expected.to include("all") }
+      it { expect(subject["all"]).to include a_hash_including("delay" => 5) }
     end
   end
 end

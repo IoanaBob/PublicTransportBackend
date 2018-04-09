@@ -53,7 +53,7 @@ class Timetable
       # if it's more than 5 minutes early it's probably the previous bus being late
       if time_difference(sch_time).abs < delay.abs && time_difference(sch_time) >= -5
         dep_time = sch_time
-        delay = time_difference(sch_time)
+        delay = time_difference(sch_time).to_i
         # line_name or line??
         bus_line = departure["line_name"]
       end
@@ -69,12 +69,12 @@ class Timetable
       delay = find_delay_for_departure(departure)
 
       unless delay.nil?
-        departure["delay"] = delay
+        departure["delay"] = delay.to_i
         expected_dep = expected_from_aimed_departure(departure["date"], departure["aimed_departure_time"], delay)
         departure["expected_departure_time"] = expected_dep[:time]
         departure["expected_departure_date"] = expected_dep[:date]
       else
-        departure["delay"] = 0.0
+        departure["delay"] = 0
         departure["expected_departure_time"] = "unknown"
         departure["expected_departure_date"] = "unknown"
       end
