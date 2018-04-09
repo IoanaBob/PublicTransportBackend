@@ -28,7 +28,7 @@ class TimetableController < ApplicationController
       return
     end
     schedule = timetable.add_delays_to_schedule
-    render json: schedule, status: :ok
+    render json: { all: schedule }, status: :ok
   end
 
   def all_of_bus_line
