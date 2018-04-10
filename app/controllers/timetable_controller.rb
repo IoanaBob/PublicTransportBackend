@@ -5,11 +5,7 @@ class TimetableController < ApplicationController
   end
 
   def all
-    if BusStop.where(atcocode: params[:atcocode]).empty?
-      render json: { errors: [atcocode: 'bus stop could not be found'] }, status: :not_found
-      return
-    end
-
+    # TODO: check for valid atcocode ??
     # check for valid date and time input
     val = Validations.new()
     unless val.valid_time(params[:time])
@@ -24,7 +20,7 @@ class TimetableController < ApplicationController
 
     timetable = Timetable.new(atcocode: params[:atcocode], datetime: (params[:date] + ' ' + params[:time]))
     if timetable.schedule == []
-      render json: [], status: :empty
+      render json: { all: [] }, status: :empty
       return
     end
     schedule = timetable.add_delays_to_schedule
@@ -32,11 +28,6 @@ class TimetableController < ApplicationController
   end
 
   def all_of_bus_line
-    if BusStop.where(atcocode: params[:atcocode]).empty?
-      render json: { errors: [atcocode: 'bus stop could not be found'] }, status: :not_found
-      return
-    end
-    
     # check for valid date and time input
     val = Validations.new()
     unless val.valid_time(params[:time])
@@ -51,7 +42,7 @@ class TimetableController < ApplicationController
     
     timetable = Timetable.new(atcocode: params[:atcocode], datetime: (params[:date] + ' ' + params[:time]), bus_line: params[:line])
     if timetable.schedule == []
-      render json: [], status: :empty
+      render json: { all: [] }, status: :empty
       return
     end
     schedule = timetable.add_delays_to_schedule

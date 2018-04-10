@@ -15,7 +15,7 @@ class Timetable
   # TODO: request schedule for each bus line separately
   def refresh_schedule(bus_line = nil)
     date = @date.strftime("%Y-%m-%d")
-    # TODO: minus 30 min
+    # TODO: add param for early schedule, with default
     time = (@time - 10.minutes).strftime("%H:%M")
     if bus_line.nil?
       url = URI.parse("http://transportapi.com/v3/uk/bus/stop/#{@atcocode}/#{date}/#{time}/timetable.json?group=no&app_id=c12137e2&app_key=703b3fc0bc730dacf75e46ce7b9e9402")
@@ -30,10 +30,14 @@ class Timetable
     end
 
     parsed_body = JSON.parse(response.body)
-    if bus_line.nil?
-      @schedule = parsed_body['departures']['all']
+    if parsed_body['departures'] == {}
+      @schedule = []
     else
-      @schedule = parsed_body['departures'][bus_line]
+      if bus_line.nil?
+        @schedule = parsed_body['departures']['all']
+      else
+        @schedule = parsed_body['departures'][bus_line]
+      end
     end
     @schedule
   end
