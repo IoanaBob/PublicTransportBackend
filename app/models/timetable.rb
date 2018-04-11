@@ -18,9 +18,9 @@ class Timetable
     # TODO: add param for early schedule, with default
     time = (@time - 10.minutes).strftime("%H:%M")
     if bus_line.nil?
-      url = URI.parse("http://transportapi.com/v3/uk/bus/stop/#{@atcocode}/#{date}/#{time}/timetable.json?group=no&&app_id=f67ffe61&app_key=84ead149046c88f0189b3763639d4d152")
+      url = URI.parse("http://transportapi.com/v3/uk/bus/stop/#{@atcocode}/#{date}/#{time}/timetable.json?group=no&app_id=f67ffe61&app_key=84ead149046c88f0189b3763639d4d152")
     else
-      url = URI.parse("http://transportapi.com/v3/uk/bus/stop/#{@atcocode}/#{date}/#{time}/timetable.json?&app_id=f67ffe61&app_key=84ead149046c88f0189b3763639d4d152")
+      url = URI.parse("http://transportapi.com/v3/uk/bus/stop/#{@atcocode}/#{date}/#{time}/timetable.json?app_id=f67ffe61&app_key=84ead149046c88f0189b3763639d4d152")
     end
     
     request = Net::HTTP::Get.new(url.to_s)
