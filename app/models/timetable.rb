@@ -4,7 +4,7 @@ require 'net/http'
 class Timetable
   attr_reader :schedule
 
-  def initialize(atcocode:, datetime:, bus_line: nil)
+  def initialize(atcocode:, datetime:, bus_line: nil, minutes_early: 0)
     @atcocode = atcocode
     @datetime = datetime
     @date = datetime.to_date
@@ -13,10 +13,10 @@ class Timetable
   end
 
   # TODO: request schedule for each bus line separately
-  def refresh_schedule(bus_line = nil)
+  def refresh_schedule(bus_line = nil, minutes_early = 0)
     date = @date.strftime("%Y-%m-%d")
     # TODO: add param for early schedule, with default
-    time = (@time - 10.minutes).strftime("%H:%M")
+    time = (@time - minutes_early.minutes).strftime("%H:%M")
     if bus_line.nil?
       url = URI.parse("http://transportapi.com/v3/uk/bus/stop/#{@atcocode}/#{date}/#{time}/timetable.json?group=no&app_id=f67ffe61&app_key=84ead149046c88f0189b3763639d4d15")
     else

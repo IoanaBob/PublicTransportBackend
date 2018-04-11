@@ -18,7 +18,7 @@ class LocationController < ApplicationController
 
       if location.save
         # add delay, and for what bus line
-        timetable = Timetable.new(atcocode: location.bus_stop.atcocode, datetime: location.time)
+        timetable = Timetable.new(atcocode: location.bus_stop.atcocode, datetime: location.time, minutes_early: 10)
         delay_for_bus = timetable.get_delay_for_bus
         unless delay_for_bus.nil?
           add_params_to_location(location, delay_for_bus[:delay], delay_for_bus[:bus_line], delay_for_bus[:aimed_departure_time])
