@@ -52,19 +52,19 @@ RSpec.describe Timetable do
       context "when there is a location aimed to leave at the same time" do
         before { FactoryBot.create :location }
         let(:time) { "14:30" }
-        it { is_expected.to eq(5) }
+        it { is_expected.to eq({delay: 5, record_count: 1}) }
       end
 
       context "when there is a location aimed to leave within +- 1 hour" do
         before { FactoryBot.create :location }
         let(:time) { "14:48" }
-        it { is_expected.to eq(5) }
+        it { is_expected.to eq({delay: 5, record_count: 1}) }
       end
 
       context "when there is a location aimed to leave within +- 1 hour" do
         before { FactoryBot.create :location }
         let(:time) { "14:48" }
-        it { is_expected.to eq(5) }
+        it { is_expected.to eq({delay: 5, record_count: 1}) }
       end
     end
 

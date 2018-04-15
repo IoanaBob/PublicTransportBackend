@@ -70,15 +70,17 @@ class Timetable
     return if @schedule.empty?
     
     @schedule.each do |departure|
-      delay = find_delay_for_departure(departure)
+      delay_info = find_delay_for_departure(departure)
 
-      unless delay.nil?
-        departure["delay"] = delay.to_i
-        expected_dep = expected_from_aimed_departure(departure["date"], departure["aimed_departure_time"], delay)
+      unless delay_info.nil?
+        departure["delay"] = delay_info[:delay].to_i
+        departure["record_count"] = delay_info[:record_count]
+        expected_dep = expected_from_aimed_departure(departure["date"], departure["aimed_departure_time"], delay_info[:delay])
         departure["expected_departure_time"] = expected_dep[:time]
         departure["expected_departure_date"] = expected_dep[:date]
       else
         departure["delay"] = 0
+        departure["record_count"] = 0
         departure["expected_departure_time"] = "unknown"
         departure["expected_departure_date"] = "unknown"
       end
@@ -104,7 +106,7 @@ class Timetable
     if locations.empty? 
       nil
     else
-      locations.average_delay
+      {delay: locations.average_delay, record_count: locations.count}
     end
   end
 
@@ -119,12 +121,13 @@ class Timetable
 
   # time difference in minutes between the recorded bus leaving time (time attribute) and the scheduled time
   def time_difference(departure_time)
-    actual_time = @datetime.in_time_zone('UTC').change(:sec => 0)
-    ((actual_time - departure_time.in_time_zone('UTC')) / 60).to_i
+    # .in_time_zone('UTC')
+    actual_time = @datetime.to_time.change(:sec => 0)
+    ((actual_time - departure_time.to_time) / 60).to_i
   end
 
   def expected_from_aimed_departure(aim_date, aim_time, delay)
-    aimed_time = (aim_date + " " + aim_time).in_time_zone('UTC')
+    aimed_time = (aim_date + " " + aim_time).to_time
     expected_time = aimed_time + delay.minutes
     {date: expected_time.strftime("%Y-%m-%d"), time: expected_time.strftime("%H:%M")}
   end
