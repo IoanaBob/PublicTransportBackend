@@ -1,0 +1,201 @@
+
+BusStop
+  Validations
+    when valid
+      should change `BusStop.count` by 1
+    when invalid
+      should raise ActiveRecord::RecordInvalid and change `BusStop.count` by 0
+    #atcocode
+      when not present
+        should not be valid
+      when duplicate
+        should not be valid
+    #mode
+      when not == bus
+        should not be valid
+      when == bus
+        should be valid
+    #name
+      when not present
+        should not be valid
+      when less than 3 characters
+        should not be valid
+    #stop_name
+      when not present
+        should not be valid
+      when less than 3 characters
+        should not be valid
+    #bearing
+      when > 2 characters
+        should not be valid
+      when length == 1
+        should be valid
+      when includes character A..Z
+        should not be valid
+      when not capitalised
+        should eq "SW"
+    #longitude
+      when not present
+        should not be valid
+      when not float
+        should not be valid
+    #latitude
+      when not present
+        should not be valid
+      when not float
+        should not be valid
+    #distance
+      when not present
+        should not be valid
+      when not integer
+        should not be valid
+
+Location
+  Validations
+    when invalid
+      should raise ActiveRecord::RecordInvalid and change `Location.count` by 0
+    #latitude
+      when not float
+        should not be valid
+      when duplicate
+        should not be valid
+    #longitude
+      when not float
+        should not be valid
+    #current_speed
+      when not float
+        should not be valid
+    #time
+      when not datetime
+        should not be valid
+      when later than current time
+        should not be valid
+  class function
+    is_weekday
+      when friday
+        should equal true
+      when saturday
+        should equal false
+    expected_time
+      when delay positive
+        should eq "2018-02-24 14:22:17"
+      when delay negative
+        should eq "2018-02-24 14:30:17"
+  scope
+    where_aimed_time
+      when time = aimed time
+        should have attributes {"id" => 252, "latitude" => 2.0, "longitude" => 1.5, "time" => 2018-02-27 14:25:17.000000000 +0000, "current_...0 +0000, "delay" => 5.0, "bus_line" => "9", "aimed_departure_time" => 2018-02-27 14:30:17.000000000 +0000}
+      when time != aimed time
+        should be blank
+    aimed_in_time_range
+      when location in time range
+        should have attributes {"id" => 254, "latitude" => 2.0, "longitude" => 1.5, "time" => 2018-02-27 14:25:17.000000000 +0000, "current_...0 +0000, "delay" => 5.0, "bus_line" => "9", "aimed_departure_time" => 2018-02-27 14:30:17.000000000 +0000}
+      when location not in time range
+        should be blank
+    where_weekday
+      when choosing weekdays
+        when valid = true
+          should have attributes {"id" => 256, "latitude" => 2.0, "longitude" => 1.5, "time" => 2018-02-27 14:25:17.000000000 +0000, "current_...0 +0000, "delay" => 5.0, "bus_line" => "9", "aimed_departure_time" => 2018-02-23 14:25:17.000000000 +0000}
+        when valid = false
+          should be blank
+      when choosing weekends
+        when valid == true
+          should be blank
+        when valid == false
+          should have attributes {"id" => 259, "latitude" => 2.0, "longitude" => 1.5, "time" => 2018-02-24 14:25:17.000000000 +0000, "current_...0 +0000, "delay" => 5.0, "bus_line" => "9", "aimed_departure_time" => 2018-02-24 14:25:17.000000000 +0000}
+    avergae_delay
+      when empty
+        should be blank
+      when two elements
+        should eq 3.5
+
+Timetable
+  class function
+    refresh_schedule
+      when correct atcocode and time
+        should eq []
+    get_delay_for_bus
+      when schedule empty
+        should be nil
+      when schedule has one element
+        should eq {:delay=>-4, :bus_line=>"9", :aimed_departure_time=>"2018-02-27 14:54"}
+      when closest departure is before
+        should eq {:delay=>-4, :bus_line=>"9", :aimed_departure_time=>"2018-02-27 14:54"}
+      when closest departure is after
+        should eq {:delay=>2, :bus_line=>"8", :aimed_departure_time=>"2018-02-27 14:48"}
+    find_delay_for_departure
+      when there's no relevant location information
+        should be nil
+      when there is a location aimed to leave at the same time
+        should eq {:delay=>5, :record_count=>1}
+      when there is a location aimed to leave within +- 1 hour
+        should eq {:delay=>5, :record_count=>1}
+      when there is a location aimed to leave within +- 1 hour
+        should eq {:delay=>5, :record_count=>1}
+    add_delays_to_schedule
+      when nothing in schedule
+        should be blank
+      when delay not found
+        should include (a hash including {"expected_departure_time" => "unknown", "expected_departure_date" => "unknown"})
+      when one item in schedule
+        should include (a hash including {"expected_departure_time" => "14:30", "expected_departure_date" => "2018-02-27"})
+      when multiple in schedule
+        should include (a hash including {"expected_departure_time" => "14:30", "expected_departure_date" => "2018-02-27"})
+
+BusStopController
+  get list of bus stops
+    when empty
+      should be empty
+    when not empty
+      should include {"id" => 471, "atcocode" => "5710AWA10617", "mode" => "bus", "name" => "Treharris Street", "stop_name" => "Treharris Street", "bearing" => "SE", "smscode" => "cdipaga", "locality" => "Roath", "indicator" => "o/s", "longitude" => -3.16913, "latitude" => 51.48983, "distance" => 61, "created_at" => "2018-05-07T15:33:40.343Z", "updated_at" => "2018-05-07T15:33:40.343Z"}
+  get bus stop by id
+    when the id does not exist
+      should raise ActiveRecord::RecordNotFound
+    when the id exists
+      should eq {"id"=>473, "atcocode"=>"5710AWA10617", "mode"=>"bus", "name"=>"Treharris Street", "stop_name"=>"Treh... "distance"=>61, "created_at"=>"2018-05-07T15:33:40.359Z", "updated_at"=>"2018-05-07T15:33:40.359Z"}
+  post bus stop
+    when doesn't validate
+      should respond with status code :bad_request (400)
+    when validations pass
+      should return status :ok
+      should change `BusStop.count` by 1
+
+Location
+  get list of locations
+    when empty
+      should be empty
+    when not empty
+      should include {"id" => 269, "latitude" => 2.0, "longitude" => 1.5, "time" => "2018-02-27T14:25:17.000Z", "current_speed" => 1.5, "note" => 1, "bus_stop_id" => 476, "created_at" => "2018-05-07T15:33:40.412Z", "updated_at" => "2018-05-07T15:33:40.412Z", "delay" => 5.0, "bus_line" => "9", "aimed_departure_time" => "2018-02-27T14:30:17.000Z"}
+  get location by id
+    when the id does not exist
+      should raise ActiveRecord::RecordNotFound
+    when the id exists
+      should eq {"id"=>271, "latitude"=>2.0, "longitude"=>1.5, "time"=>"2018-02-27T14:25:17.000Z", "current_speed"=>1...7T15:33:40.432Z", "delay"=>5.0, "bus_line"=>"9", "aimed_departure_time"=>"2018-02-27T14:30:17.000Z"}
+  post location
+    when the bus stop does not exist
+      should respond with status code :not_found (404)
+    when the bus stop exists
+      should return status :ok
+      should change `Location.count` by 1
+
+Timetable
+  get timetable (list of departures)
+    when date not valid
+      should respond with status code :bad_request (400)
+    when time not valid
+      should respond with status code :bad_request (400)
+    when not empty
+      should include "all"
+      should include (a hash including {"delay" => 5})
+  get timetable (list of departures) for a bus line
+    when date not valid
+      should respond with status code :bad_request (400)
+    when time not valid
+      should respond with status code :bad_request (400)
+    when not empty
+      should include "all"
+      should include (a hash including {"delay" => 5})
+
+Finished in 0.8978 seconds (files took 2.04 seconds to load)
+76 examples, 0 failures
+

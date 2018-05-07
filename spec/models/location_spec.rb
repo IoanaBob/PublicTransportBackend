@@ -4,7 +4,6 @@ RSpec.describe Location, type: :model do
   describe "Validations" do
     context "when valid" do
       subject { FactoryBot.create :location }
-      it { expect { subject }.to change { Location.count }.by(1) }
     end
 
     context "when invalid" do
@@ -22,6 +21,12 @@ RSpec.describe Location, type: :model do
 
       context "when not float" do
         let(:latitude) { "hi" }
+        it { is_expected.not_to be_valid }
+      end
+
+      context "when duplicate" do
+        let (:latitude) { 2.0 }
+        before { FactoryBot.create :location, latitude: latitude }
         it { is_expected.not_to be_valid }
       end
     end
@@ -97,8 +102,9 @@ RSpec.describe Location, type: :model do
       
       context "when time = aimed time" do
         let!(:time) { "14:30" }
-        it {is_expected.to have_attributes(Location.first.attributes)}
+        it { is_expected.to have_attributes(Location.first.attributes) }
       end
+
       context "when time != aimed time" do
         let!(:time) { "14:20" }
         it { is_expected.to be_blank }
@@ -139,21 +145,27 @@ RSpec.describe Location, type: :model do
       end
 
       context "when choosing weekends" do
-        let!(:location) { FactoryBot.create :location, aimed_departure_time: "2018-02-24 14:25:17" }
+        before do
+          Location.delete_all
+          FactoryBot.create :location, aimed_departure_time: "2018-02-24 14:25:17", time: "2018-02-24 14:25:17"
+        end
+
         subject { Location.where_weekday(valid).first }
 
-        context "when valid = true" do
+        context "when valid == true" do
           let(:valid) { true }
           it { is_expected.to be_blank }
         end
-        context "when valid = false" do
+
+        context "when valid == false" do
           let(:valid) { false }
-          it {is_expected.to have_attributes(Location.first.attributes)}
+          it { is_expected.to have_attributes(Location.first.attributes) }
         end
       end
     end
 
     describe "avergae_delay" do
+      before { Location.delete_all }
       subject { Location.average_delay }
 
       context "when empty" do
@@ -161,7 +173,7 @@ RSpec.describe Location, type: :model do
       end
 
       context "when two elements" do
-        before { FactoryBot.create :location, delay: 2.0; FactoryBot.create :location, delay: 5.0 }
+        before { FactoryBot.create :location, time: "2018-02-27 14:20:17", delay: 2.0; FactoryBot.create :location, delay: 5.0 }
         
         it { is_expected.to eq(3.5) }
       end    

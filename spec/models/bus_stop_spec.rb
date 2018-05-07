@@ -24,6 +24,11 @@ RSpec.describe BusStop, type: :model do
         let(:atcocode) { nil }
         it { is_expected.not_to be_valid }
       end
+
+      context "when duplicate" do
+        let(:atcocode) { "5710AWA10617" }
+        it { FactoryBot.create :bus_stop; is_expected.not_to be_valid }
+      end
     end
 
     describe "#mode" do

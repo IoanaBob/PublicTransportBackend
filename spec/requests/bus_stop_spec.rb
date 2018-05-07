@@ -7,7 +7,11 @@ RSpec.describe BusStopController, type: :request do
     let(:request) { get '/bus_stops' }
 
     context 'when empty' do
-      before { request }
+      before do
+        BusStop.delete_all
+        request
+      end
+
       it { is_expected.to be_empty }
     end
 

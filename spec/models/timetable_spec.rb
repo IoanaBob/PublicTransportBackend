@@ -42,11 +42,12 @@ RSpec.describe Timetable do
     end
 
     describe "find_delay_for_departure" do
+      before { Location.delete_all }
       subject { timetable.find_delay_for_departure({"date" => "2018-02-27", "aimed_departure_time" => time, "line_name" => "9" }) }
 
       context "when there's no relevant location information" do
         let(:time) { "14:30" }
-        it {is_expected.to be_nil }
+        it { is_expected.to be_nil }
       end
 
       context "when there is a location aimed to leave at the same time" do

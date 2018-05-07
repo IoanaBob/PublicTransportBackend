@@ -8,7 +8,7 @@
 
 bus_stop = BusStop.create(
   {
-    atcocode: "5710AWA10617", 
+    atcocode: "5710AWA10616", 
     mode: "bus", 
     name: "Treharris Street", 
     stop_name: "Treharris Street",

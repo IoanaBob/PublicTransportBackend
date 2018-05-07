@@ -1,15 +1,30 @@
 class Location < ApplicationRecord
   belongs_to :bus_stop
   
-  validates :latitude, presence: true, numericality: {only_float: true}
-  validates :longitude, presence: true, numericality: {only_float: true}
+  validates :latitude, presence: true, numericality: {only_float: true}, allow_nil: false
+  validates :longitude, presence: true, numericality: {only_float: true}, allow_nil: false
   validates :current_speed, presence: true, numericality: {only_float: true}
-  validates :time, presence: true
+  validates :time, presence: true, allow_nil: false
   validate :location_in_the_past
+  validate :not_duplicate
 
   def location_in_the_past
     if time.present? && time > DateTime.now
       errors.add(:time, "cannot be in the future")
+    end
+  end
+
+  def not_duplicate
+    # why are these necessary?
+    if time.nil? 
+      errors.add(:time, "invalid time")
+      return
+    end
+    locations = Location.where(latitude: (latitude-0.000000000001)..(latitude+0.0000000000001))
+    locations = locations.where(longitude: (longitude-0.000000000001)..(longitude+0.0000000000001))
+    locations = locations.where(time: (time - 1.minutes)..(time + 1.minutes))
+    unless locations.empty?
+      errors.add(:latitude, "cannot be duplicate")
     end
   end
 

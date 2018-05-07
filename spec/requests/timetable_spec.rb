@@ -48,10 +48,10 @@ RSpec.describe Timetable, type: :request do
     end
 
     context 'when not empty' do
-      let!(:location) { FactoryBot.create :location }
-      let!(:bus_stop) { FactoryBot.create :bus_stop, atcocode: "5710AWA10617" }
-
-      before { request }
+      before do
+        FactoryBot.create :location 
+        request
+      end
 
       it { is_expected.to include("all") }
       it { expect(subject["all"]).to include a_hash_including("delay" => 5) }
@@ -102,7 +102,6 @@ RSpec.describe Timetable, type: :request do
     context 'when not empty' do
       let(:body) { {"departures" => { "8" => [{"date" => "2018-02-27", "aimed_departure_time" => "14:25", "line_name" => "8" }], "9" => [{"date" => "2018-02-27", "aimed_departure_time" => "14:33", "line_name" => "9" }] } }.to_json }
       let!(:location) { FactoryBot.create :location, bus_line: "8" }
-      let!(:bus_stop) { FactoryBot.create :bus_stop, atcocode: "5710AWA10617" }
       
       before { request }
 

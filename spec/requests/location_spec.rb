@@ -2,6 +2,7 @@ RSpec.describe Location, type: :request do
   subject { response.body.blank? ? nil : JSON.parse(response.body) }
 
   describe 'get list of locations' do
+    before { Location.delete_all }
     let(:request) { get '/locations' }
 
     context 'when empty' do
